@@ -72,14 +72,18 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
+      { title: "Centre Dentaire Benguerir" },
+      { name: "description", content: "Un sourire éclatant, des soins d'exception." },
       { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { property: "og:title", content: "Centre Dentaire Benguerir" },
+      { property: "og:description", content: "Un sourire éclatant, des soins d'exception." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:site", content: "@Lovable" },
+      { name: "twitter:title", content: "Centre Dentaire Benguerir" },
+      { name: "twitter:description", content: "Un sourire éclatant, des soins d'exception." },
+      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/70c2a772-56a2-4eed-b072-457b9b8ad56d" },
+      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/70c2a772-56a2-4eed-b072-457b9b8ad56d" },
     ],
     links: [
       {
