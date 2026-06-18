@@ -6,7 +6,7 @@ import cabinet2 from "@/assets/cabinet-2.webp";
 import serviceWhitening from "@/assets/service-whitening.jpg";
 import serviceImplants from "@/assets/service-implants.jpg";
 import servicePediatric from "@/assets/service-pediatric.jpg";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import {
   Phone,
   MapPin,
@@ -153,7 +153,10 @@ function Header() {
 
 function Hero() {
   const [pos, setPos] = useState({ x: 0, y: 0, r: 0 });
+  const [isDragging, setIsDragging] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const dragStart = useRef<{ x: number; y: number; toothX: number; toothY: number } | null>(null);
+  const hasMoved = useRef(false);
 
   const runAway = () => {
     const el = containerRef.current;
@@ -167,6 +170,60 @@ function Hero() {
     setPos({ x, y, r });
   };
 
+  const startDrag = (clientX: number, clientY: number) => {
+    setIsDragging(true);
+    hasMoved.current = false;
+    dragStart.current = { x: clientX, y: clientY, toothX: pos.x, toothY: pos.y };
+  };
+
+  const moveDrag = (clientX: number, clientY: number) => {
+    const start = dragStart.current;
+    if (!start) return;
+    const dx = clientX - start.x;
+    const dy = clientY - start.y;
+    if (Math.abs(dx) > 4 || Math.abs(dy) > 4) hasMoved.current = true;
+    setPos((prev) => ({ ...prev, x: start.toothX + dx, y: start.toothY + dy }));
+  };
+
+  const endDrag = () => {
+    if (!hasMoved.current) runAway();
+    setIsDragging(false);
+    dragStart.current = null;
+  };
+
+  const onMouseDown = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    startDrag(e.clientX, e.clientY);
+  };
+
+  const onTouchStart = (e: React.TouchEvent<HTMLButtonElement>) => {
+    const t = e.touches[0];
+    if (t) startDrag(t.clientX, t.clientY);
+  };
+
+  useEffect(() => {
+    if (!isDragging) return;
+    const handleMouseMove = (e: MouseEvent) => moveDrag(e.clientX, e.clientY);
+    const handleMouseUp = () => endDrag();
+    const handleTouchMove = (e: TouchEvent) => {
+      const t = e.touches[0];
+      if (t) moveDrag(t.clientX, t.clientY);
+    };
+    const handleTouchEnd = () => endDrag();
+
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mouseup", handleMouseUp);
+    window.addEventListener("touchmove", handleTouchMove, { passive: false });
+    window.addEventListener("touchend", handleTouchEnd);
+
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", handleMouseUp);
+      window.removeEventListener("touchmove", handleTouchMove);
+      window.removeEventListener("touchend", handleTouchEnd);
+    };
+  }, [isDragging]);
+
   return (
     <section
       id="top"
@@ -175,13 +232,15 @@ function Hero() {
       style={{ background: "var(--gradient-hero)" }}
     >
       <button
-        onClick={runAway}
+        onMouseDown={onMouseDown}
+        onTouchStart={onTouchStart}
         aria-label="Dent flottante"
-        className="absolute z-20 left-1/2 top-1/2 cursor-pointer select-none text-5xl md:text-6xl text-white drop-shadow-[0_10px_25px_rgba(0,0,0,0.25)] hover:scale-110 transition-transform duration-300"
+        className={`absolute z-20 left-1/2 top-1/2 select-none text-5xl md:text-6xl text-white drop-shadow-[0_10px_25px_rgba(0,0,0,0.25)] hover:scale-110 transition-transform duration-300 ${isDragging ? "cursor-grabbing" : "cursor-grab"}`}
         style={{
           transform: `translate(calc(-50% + ${pos.x}px), calc(-50% + ${pos.y}px)) rotate(${pos.r}deg)`,
-          transition: "transform 0.45s cubic-bezier(.34,1.56,.64,1)",
+          transition: isDragging ? "none" : "transform 0.45s cubic-bezier(.34,1.56,.64,1)",
           animation: "floatTooth 6s ease-in-out infinite",
+          animationPlayState: isDragging ? "paused" : "running",
         }}
       >
         <span role="img" aria-label="tooth">🦷</span>
