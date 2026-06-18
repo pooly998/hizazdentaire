@@ -6,7 +6,7 @@ import cabinet2 from "@/assets/cabinet-2.webp";
 import serviceWhitening from "@/assets/service-whitening.jpg";
 import serviceImplants from "@/assets/service-implants.jpg";
 import servicePediatric from "@/assets/service-pediatric.jpg";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import {
   Phone,
   MapPin,
