@@ -3,6 +3,10 @@ import logo from "@/assets/logo.webp";
 import reception from "@/assets/reception.webp";
 import cabinet1 from "@/assets/cabinet-1.webp";
 import cabinet2 from "@/assets/cabinet-2.webp";
+import serviceWhitening from "@/assets/service-whitening.jpg";
+import serviceImplants from "@/assets/service-implants.jpg";
+import servicePediatric from "@/assets/service-pediatric.jpg";
+import { useState, useRef } from "react";
 import {
   Phone,
   MapPin,
@@ -14,6 +18,9 @@ import {
   Stethoscope,
   Baby,
   HeartPulse,
+  CalendarCheck,
+  Check,
+  X,
 } from "lucide-react";
 
 export const Route = createFileRoute("/")({
@@ -71,8 +78,33 @@ function Index() {
       <Hero />
       <Stats />
       <Services />
+      <ServiceFeature
+        eyebrow="Esthétique"
+        title="Blanchiment & sourire éclatant"
+        desc="Redonnez tout son éclat à votre sourire grâce à nos protocoles de blanchiment professionnel, doux pour l'émail et aux résultats visibles dès la première séance."
+        bullets={["Blanchiment au fauteuil", "Facettes céramiques", "Protocoles sans douleur"]}
+        image={serviceWhitening}
+        alt="Blanchiment dentaire"
+      />
       <About />
+      <ServiceFeature
+        eyebrow="Chirurgie"
+        title="Implants dentaires de haute précision"
+        desc="Retrouvez le confort de mâcher et de sourire grâce à des implants posés avec un matériel de dernière génération et un suivi personnalisé à chaque étape."
+        bullets={["Implants titane premium", "Planification numérique", "Pose mini-invasive"]}
+        image={serviceImplants}
+        alt="Implant dentaire"
+        reverse
+      />
       <Gallery />
+      <ServiceFeature
+        eyebrow="Enfants"
+        title="Dentisterie pédiatrique tout en douceur"
+        desc="Un accueil chaleureux et ludique pour que vos enfants vivent leurs soins dentaires en toute sérénité, et adoptent dès le plus jeune âge les bons réflexes."
+        bullets={["Approche rassurante", "Prévention & scellements", "Suivi orthodontique"]}
+        image={servicePediatric}
+        alt="Dentisterie pédiatrique"
+      />
       <Reviews />
       <Visit />
       <Footer />
@@ -81,6 +113,7 @@ function Index() {
 }
 
 function Header() {
+  const [open, setOpen] = useState(false);
   return (
     <header className="sticky top-0 z-40 backdrop-blur-md bg-background/80 border-b border-border">
       <div className="mx-auto max-w-6xl flex items-center justify-between px-6 py-4">
@@ -97,24 +130,70 @@ function Header() {
           <a href="#avis" className="hover:text-foreground transition">Avis</a>
           <a href="#contact" className="hover:text-foreground transition">Contact</a>
         </nav>
-        <a
-          href="tel:+212529265580"
-          className="inline-flex items-center gap-2 rounded-full bg-[var(--gold)] px-4 py-2 text-sm font-medium text-[var(--gold-foreground)] hover:opacity-90 transition shadow-sm"
-        >
-          <Phone className="h-4 w-4" /> 05 29 26 55 80
-        </a>
+        <div className="flex items-center gap-2">
+          <a
+            href="tel:+212529265580"
+            className="hidden sm:inline-flex items-center gap-2 rounded-full border border-border px-4 py-2 text-sm font-medium hover:bg-secondary transition"
+          >
+            <Phone className="h-4 w-4" /> 05 29 26 55 80
+          </a>
+          <button
+            onClick={() => setOpen(true)}
+            className="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium text-[var(--gold-foreground)] shadow-sm hover:opacity-90 transition"
+            style={{ background: "var(--gradient-gold)" }}
+          >
+            <CalendarCheck className="h-4 w-4" /> Réserver
+          </button>
+        </div>
+        <ReservationDialog open={open} onClose={() => setOpen(false)} />
       </div>
     </header>
   );
 }
 
 function Hero() {
+  const [pos, setPos] = useState({ x: 0, y: 0, r: 0 });
+  const [caught, setCaught] = useState(0);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const runAway = () => {
+    const el = containerRef.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    const maxX = Math.max(rect.width - 120, 60);
+    const maxY = Math.max(rect.height - 120, 60);
+    const x = (Math.random() - 0.5) * maxX * 0.8;
+    const y = (Math.random() - 0.5) * maxY * 0.8;
+    const r = (Math.random() - 0.5) * 60;
+    setPos({ x, y, r });
+    setCaught((c) => c + 1);
+  };
+
   return (
     <section
       id="top"
       className="relative overflow-hidden"
+      ref={containerRef}
       style={{ background: "var(--gradient-hero)" }}
     >
+      <button
+        onClick={runAway}
+        aria-label="Attrape la dent"
+        className="absolute z-20 left-1/2 top-1/2 h-16 w-16 md:h-20 md:w-20 grid place-items-center rounded-full bg-white shadow-2xl cursor-pointer select-none"
+        style={{
+          transform: `translate(calc(-50% + ${pos.x}px), calc(-50% + ${pos.y}px)) rotate(${pos.r}deg)`,
+          transition: "transform 0.45s cubic-bezier(.34,1.56,.64,1)",
+          animation: caught === 0 ? "fade-in 0.6s ease-out, floatY 3s ease-in-out infinite" : "floatY 3s ease-in-out infinite",
+        }}
+      >
+        <span className="text-3xl md:text-4xl" role="img" aria-label="tooth">🦷</span>
+        {caught > 0 && (
+          <span className="absolute -top-2 -right-2 h-6 min-w-6 px-1 rounded-full bg-[var(--gold)] text-[10px] font-bold text-[var(--gold-foreground)] grid place-items-center">
+            {caught}
+          </span>
+        )}
+      </button>
+      <style>{`@keyframes floatY{0%,100%{translate:0 0}50%{translate:0 -8px}}`}</style>
       <div
         className="absolute inset-0 opacity-[0.08] pointer-events-none"
         style={{
@@ -303,6 +382,150 @@ function Gallery() {
         </div>
       </div>
     </section>
+  );
+}
+
+function ServiceFeature({
+  eyebrow,
+  title,
+  desc,
+  bullets,
+  image,
+  alt,
+  reverse,
+}: {
+  eyebrow: string;
+  title: string;
+  desc: string;
+  bullets: string[];
+  image: string;
+  alt: string;
+  reverse?: boolean;
+}) {
+  return (
+    <section className="border-y border-border">
+      <div className="mx-auto max-w-6xl px-6 py-24 grid md:grid-cols-2 gap-12 items-center">
+        <div className={reverse ? "md:order-2" : ""}>
+          <span className="text-xs uppercase tracking-[0.2em] text-[var(--gold)]">{eyebrow}</span>
+          <h2 className="mt-3 text-3xl md:text-4xl font-light tracking-tight">{title}</h2>
+          <p className="mt-5 text-muted-foreground leading-relaxed">{desc}</p>
+          <ul className="mt-6 space-y-3 text-sm">
+            {bullets.map((b) => (
+              <li key={b} className="flex items-start gap-3">
+                <span className="mt-0.5 h-5 w-5 rounded-full grid place-items-center text-[var(--gold-foreground)]" style={{ background: "var(--gradient-gold)" }}>
+                  <Check className="h-3 w-3" />
+                </span>
+                <span>{b}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+        <div className={reverse ? "md:order-1" : ""}>
+          <div
+            className="relative rounded-3xl overflow-hidden border border-border"
+            style={{ boxShadow: "var(--shadow-elegant)" }}
+          >
+            <img src={image} alt={alt} loading="lazy" width={1024} height={1024} className="w-full h-[420px] object-cover" />
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function ReservationDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [note, setNote] = useState("");
+  const [error, setError] = useState("");
+
+  if (!open) return null;
+
+  const submit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const n = name.trim();
+    const p = phone.trim();
+    if (n.length < 2 || n.length > 80) return setError("Veuillez entrer un nom valide.");
+    if (!/^[+\d\s()-]{6,20}$/.test(p)) return setError("Veuillez entrer un numéro de téléphone valide.");
+    const safeNote = note.trim().slice(0, 300);
+    const msg =
+      `Nouvelle demande de rendez-vous — Centre Dentaire Benguerir\n\n` +
+      `Nom: ${n}\nTéléphone: ${p}` +
+      (safeNote ? `\nMessage: ${safeNote}` : "");
+    const url = `https://wa.me/212626870600?text=${encodeURIComponent(msg)}`;
+    window.open(url, "_blank", "noopener,noreferrer");
+    setName(""); setPhone(""); setNote(""); setError("");
+    onClose();
+  };
+
+  return (
+    <div
+      className="fixed inset-0 z-50 grid place-items-center bg-black/60 backdrop-blur-sm animate-fade-in p-4"
+      onClick={onClose}
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="w-full max-w-md rounded-3xl bg-background border border-border p-7 shadow-2xl animate-scale-in"
+      >
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <span className="text-xs uppercase tracking-[0.2em] text-[var(--gold)]">Rendez-vous</span>
+            <h3 className="mt-1 text-2xl font-light">Réservez votre consultation</h3>
+            <p className="mt-1 text-sm text-muted-foreground">Nous vous recontactons via WhatsApp.</p>
+          </div>
+          <button onClick={onClose} aria-label="Fermer" className="rounded-full p-2 hover:bg-secondary transition">
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+        <form onSubmit={submit} className="mt-6 space-y-4">
+          <div>
+            <label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Nom complet *</label>
+            <input
+              required
+              maxLength={80}
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="mt-1.5 w-full rounded-xl border border-input bg-background px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--gold)]"
+              placeholder="Votre nom"
+            />
+          </div>
+          <div>
+            <label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Téléphone *</label>
+            <input
+              required
+              type="tel"
+              maxLength={20}
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              className="mt-1.5 w-full rounded-xl border border-input bg-background px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--gold)]"
+              placeholder="06 00 00 00 00"
+            />
+          </div>
+          <div>
+            <label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Message (optionnel)</label>
+            <textarea
+              maxLength={300}
+              value={note}
+              onChange={(e) => setNote(e.target.value)}
+              rows={3}
+              className="mt-1.5 w-full rounded-xl border border-input bg-background px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--gold)]"
+              placeholder="Motif de la visite, disponibilités…"
+            />
+          </div>
+          {error && <p className="text-xs text-destructive">{error}</p>}
+          <button
+            type="submit"
+            className="w-full inline-flex items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-medium text-[var(--gold-foreground)] shadow-md hover:opacity-90 transition"
+            style={{ background: "var(--gradient-gold)" }}
+          >
+            <CalendarCheck className="h-4 w-4" /> Envoyer via WhatsApp
+          </button>
+          <p className="text-[11px] text-muted-foreground text-center">
+            En envoyant, vous serez redirigé vers WhatsApp pour confirmer.
+          </p>
+        </form>
+      </div>
+    </div>
   );
 }
 
