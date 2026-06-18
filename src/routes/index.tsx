@@ -385,6 +385,150 @@ function Gallery() {
   );
 }
 
+function ServiceFeature({
+  eyebrow,
+  title,
+  desc,
+  bullets,
+  image,
+  alt,
+  reverse,
+}: {
+  eyebrow: string;
+  title: string;
+  desc: string;
+  bullets: string[];
+  image: string;
+  alt: string;
+  reverse?: boolean;
+}) {
+  return (
+    <section className="border-y border-border">
+      <div className="mx-auto max-w-6xl px-6 py-24 grid md:grid-cols-2 gap-12 items-center">
+        <div className={reverse ? "md:order-2" : ""}>
+          <span className="text-xs uppercase tracking-[0.2em] text-[var(--gold)]">{eyebrow}</span>
+          <h2 className="mt-3 text-3xl md:text-4xl font-light tracking-tight">{title}</h2>
+          <p className="mt-5 text-muted-foreground leading-relaxed">{desc}</p>
+          <ul className="mt-6 space-y-3 text-sm">
+            {bullets.map((b) => (
+              <li key={b} className="flex items-start gap-3">
+                <span className="mt-0.5 h-5 w-5 rounded-full grid place-items-center text-[var(--gold-foreground)]" style={{ background: "var(--gradient-gold)" }}>
+                  <Check className="h-3 w-3" />
+                </span>
+                <span>{b}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+        <div className={reverse ? "md:order-1" : ""}>
+          <div
+            className="relative rounded-3xl overflow-hidden border border-border"
+            style={{ boxShadow: "var(--shadow-elegant)" }}
+          >
+            <img src={image} alt={alt} loading="lazy" width={1024} height={1024} className="w-full h-[420px] object-cover" />
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function ReservationDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [note, setNote] = useState("");
+  const [error, setError] = useState("");
+
+  if (!open) return null;
+
+  const submit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const n = name.trim();
+    const p = phone.trim();
+    if (n.length < 2 || n.length > 80) return setError("Veuillez entrer un nom valide.");
+    if (!/^[+\d\s()-]{6,20}$/.test(p)) return setError("Veuillez entrer un numéro de téléphone valide.");
+    const safeNote = note.trim().slice(0, 300);
+    const msg =
+      `Nouvelle demande de rendez-vous — Centre Dentaire Benguerir\n\n` +
+      `Nom: ${n}\nTéléphone: ${p}` +
+      (safeNote ? `\nMessage: ${safeNote}` : "");
+    const url = `https://wa.me/212626870600?text=${encodeURIComponent(msg)}`;
+    window.open(url, "_blank", "noopener,noreferrer");
+    setName(""); setPhone(""); setNote(""); setError("");
+    onClose();
+  };
+
+  return (
+    <div
+      className="fixed inset-0 z-50 grid place-items-center bg-black/60 backdrop-blur-sm animate-fade-in p-4"
+      onClick={onClose}
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="w-full max-w-md rounded-3xl bg-background border border-border p-7 shadow-2xl animate-scale-in"
+      >
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <span className="text-xs uppercase tracking-[0.2em] text-[var(--gold)]">Rendez-vous</span>
+            <h3 className="mt-1 text-2xl font-light">Réservez votre consultation</h3>
+            <p className="mt-1 text-sm text-muted-foreground">Nous vous recontactons via WhatsApp.</p>
+          </div>
+          <button onClick={onClose} aria-label="Fermer" className="rounded-full p-2 hover:bg-secondary transition">
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+        <form onSubmit={submit} className="mt-6 space-y-4">
+          <div>
+            <label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Nom complet *</label>
+            <input
+              required
+              maxLength={80}
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="mt-1.5 w-full rounded-xl border border-input bg-background px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--gold)]"
+              placeholder="Votre nom"
+            />
+          </div>
+          <div>
+            <label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Téléphone *</label>
+            <input
+              required
+              type="tel"
+              maxLength={20}
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              className="mt-1.5 w-full rounded-xl border border-input bg-background px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--gold)]"
+              placeholder="06 00 00 00 00"
+            />
+          </div>
+          <div>
+            <label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Message (optionnel)</label>
+            <textarea
+              maxLength={300}
+              value={note}
+              onChange={(e) => setNote(e.target.value)}
+              rows={3}
+              className="mt-1.5 w-full rounded-xl border border-input bg-background px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--gold)]"
+              placeholder="Motif de la visite, disponibilités…"
+            />
+          </div>
+          {error && <p className="text-xs text-destructive">{error}</p>}
+          <button
+            type="submit"
+            className="w-full inline-flex items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-medium text-[var(--gold-foreground)] shadow-md hover:opacity-90 transition"
+            style={{ background: "var(--gradient-gold)" }}
+          >
+            <CalendarCheck className="h-4 w-4" /> Envoyer via WhatsApp
+          </button>
+          <p className="text-[11px] text-muted-foreground text-center">
+            En envoyant, vous serez redirigé vers WhatsApp pour confirmer.
+          </p>
+        </form>
+      </div>
+    </div>
+  );
+}
+
 function Reviews() {
   return (
     <section id="avis" className="bg-secondary/40 border-y border-border">
