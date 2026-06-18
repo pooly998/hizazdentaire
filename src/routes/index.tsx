@@ -3,6 +3,10 @@ import logo from "@/assets/logo.webp";
 import reception from "@/assets/reception.webp";
 import cabinet1 from "@/assets/cabinet-1.webp";
 import cabinet2 from "@/assets/cabinet-2.webp";
+import serviceWhitening from "@/assets/service-whitening.jpg";
+import serviceImplants from "@/assets/service-implants.jpg";
+import servicePediatric from "@/assets/service-pediatric.jpg";
+import { useState, useRef } from "react";
 import {
   Phone,
   MapPin,
@@ -14,6 +18,9 @@ import {
   Stethoscope,
   Baby,
   HeartPulse,
+  CalendarCheck,
+  Check,
+  X,
 } from "lucide-react";
 
 export const Route = createFileRoute("/")({
@@ -71,8 +78,33 @@ function Index() {
       <Hero />
       <Stats />
       <Services />
+      <ServiceFeature
+        eyebrow="Esthétique"
+        title="Blanchiment & sourire éclatant"
+        desc="Redonnez tout son éclat à votre sourire grâce à nos protocoles de blanchiment professionnel, doux pour l'émail et aux résultats visibles dès la première séance."
+        bullets={["Blanchiment au fauteuil", "Facettes céramiques", "Protocoles sans douleur"]}
+        image={serviceWhitening}
+        alt="Blanchiment dentaire"
+      />
       <About />
+      <ServiceFeature
+        eyebrow="Chirurgie"
+        title="Implants dentaires de haute précision"
+        desc="Retrouvez le confort de mâcher et de sourire grâce à des implants posés avec un matériel de dernière génération et un suivi personnalisé à chaque étape."
+        bullets={["Implants titane premium", "Planification numérique", "Pose mini-invasive"]}
+        image={serviceImplants}
+        alt="Implant dentaire"
+        reverse
+      />
       <Gallery />
+      <ServiceFeature
+        eyebrow="Enfants"
+        title="Dentisterie pédiatrique tout en douceur"
+        desc="Un accueil chaleureux et ludique pour que vos enfants vivent leurs soins dentaires en toute sérénité, et adoptent dès le plus jeune âge les bons réflexes."
+        bullets={["Approche rassurante", "Prévention & scellements", "Suivi orthodontique"]}
+        image={servicePediatric}
+        alt="Dentisterie pédiatrique"
+      />
       <Reviews />
       <Visit />
       <Footer />
@@ -81,6 +113,7 @@ function Index() {
 }
 
 function Header() {
+  const [open, setOpen] = useState(false);
   return (
     <header className="sticky top-0 z-40 backdrop-blur-md bg-background/80 border-b border-border">
       <div className="mx-auto max-w-6xl flex items-center justify-between px-6 py-4">
@@ -97,12 +130,22 @@ function Header() {
           <a href="#avis" className="hover:text-foreground transition">Avis</a>
           <a href="#contact" className="hover:text-foreground transition">Contact</a>
         </nav>
-        <a
-          href="tel:+212529265580"
-          className="inline-flex items-center gap-2 rounded-full bg-[var(--gold)] px-4 py-2 text-sm font-medium text-[var(--gold-foreground)] hover:opacity-90 transition shadow-sm"
-        >
-          <Phone className="h-4 w-4" /> 05 29 26 55 80
-        </a>
+        <div className="flex items-center gap-2">
+          <a
+            href="tel:+212529265580"
+            className="hidden sm:inline-flex items-center gap-2 rounded-full border border-border px-4 py-2 text-sm font-medium hover:bg-secondary transition"
+          >
+            <Phone className="h-4 w-4" /> 05 29 26 55 80
+          </a>
+          <button
+            onClick={() => setOpen(true)}
+            className="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium text-[var(--gold-foreground)] shadow-sm hover:opacity-90 transition"
+            style={{ background: "var(--gradient-gold)" }}
+          >
+            <CalendarCheck className="h-4 w-4" /> Réserver
+          </button>
+        </div>
+        <ReservationDialog open={open} onClose={() => setOpen(false)} />
       </div>
     </header>
   );
