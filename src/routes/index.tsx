@@ -153,7 +153,6 @@ function Header() {
 
 function Hero() {
   const [pos, setPos] = useState({ x: 0, y: 0, r: 0 });
-  const [caught, setCaught] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
 
   const runAway = () => {
@@ -166,7 +165,6 @@ function Hero() {
     const y = (Math.random() - 0.5) * maxY * 0.8;
     const r = (Math.random() - 0.5) * 60;
     setPos({ x, y, r });
-    setCaught((c) => c + 1);
   };
 
   return (
@@ -178,22 +176,24 @@ function Hero() {
     >
       <button
         onClick={runAway}
-        aria-label="Attrape la dent"
-        className="absolute z-20 left-1/2 top-1/2 h-16 w-16 md:h-20 md:w-20 grid place-items-center rounded-full bg-white shadow-2xl cursor-pointer select-none"
+        aria-label="Dent flottante"
+        className="absolute z-20 left-1/2 top-1/2 cursor-pointer select-none text-5xl md:text-6xl text-white drop-shadow-[0_10px_25px_rgba(0,0,0,0.25)] hover:scale-110 transition-transform duration-300"
         style={{
           transform: `translate(calc(-50% + ${pos.x}px), calc(-50% + ${pos.y}px)) rotate(${pos.r}deg)`,
           transition: "transform 0.45s cubic-bezier(.34,1.56,.64,1)",
-          animation: caught === 0 ? "fade-in 0.6s ease-out, floatY 3s ease-in-out infinite" : "floatY 3s ease-in-out infinite",
+          animation: "floatTooth 6s ease-in-out infinite",
         }}
       >
-        <span className="text-3xl md:text-4xl" role="img" aria-label="tooth">🦷</span>
-        {caught > 0 && (
-          <span className="absolute -top-2 -right-2 h-6 min-w-6 px-1 rounded-full bg-[var(--gold)] text-[10px] font-bold text-[var(--gold-foreground)] grid place-items-center">
-            {caught}
-          </span>
-        )}
+        <span role="img" aria-label="tooth">🦷</span>
       </button>
-      <style>{`@keyframes floatY{0%,100%{translate:0 0}50%{translate:0 -8px}}`}</style>
+      <style>{`
+        @keyframes floatTooth {
+          0%, 100% { translate: 0 0; }
+          25% { translate: 12px -22px; }
+          50% { translate: -8px -36px; }
+          75% { translate: -18px -14px; }
+        }
+      `}</style>
       <div
         className="absolute inset-0 opacity-[0.08] pointer-events-none"
         style={{
