@@ -152,12 +152,48 @@ function Header() {
 }
 
 function Hero() {
+  const [pos, setPos] = useState({ x: 0, y: 0, r: 0 });
+  const [caught, setCaught] = useState(0);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const runAway = () => {
+    const el = containerRef.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    const maxX = Math.max(rect.width - 120, 60);
+    const maxY = Math.max(rect.height - 120, 60);
+    const x = (Math.random() - 0.5) * maxX * 0.8;
+    const y = (Math.random() - 0.5) * maxY * 0.8;
+    const r = (Math.random() - 0.5) * 60;
+    setPos({ x, y, r });
+    setCaught((c) => c + 1);
+  };
+
   return (
     <section
       id="top"
       className="relative overflow-hidden"
+      ref={containerRef}
       style={{ background: "var(--gradient-hero)" }}
     >
+      <button
+        onClick={runAway}
+        aria-label="Attrape la dent"
+        className="absolute z-20 left-1/2 top-1/2 h-16 w-16 md:h-20 md:w-20 grid place-items-center rounded-full bg-white shadow-2xl cursor-pointer select-none"
+        style={{
+          transform: `translate(calc(-50% + ${pos.x}px), calc(-50% + ${pos.y}px)) rotate(${pos.r}deg)`,
+          transition: "transform 0.45s cubic-bezier(.34,1.56,.64,1)",
+          animation: caught === 0 ? "fade-in 0.6s ease-out, floatY 3s ease-in-out infinite" : "floatY 3s ease-in-out infinite",
+        }}
+      >
+        <span className="text-3xl md:text-4xl" role="img" aria-label="tooth">🦷</span>
+        {caught > 0 && (
+          <span className="absolute -top-2 -right-2 h-6 min-w-6 px-1 rounded-full bg-[var(--gold)] text-[10px] font-bold text-[var(--gold-foreground)] grid place-items-center">
+            {caught}
+          </span>
+        )}
+      </button>
+      <style>{`@keyframes floatY{0%,100%{translate:0 0}50%{translate:0 -8px}}`}</style>
       <div
         className="absolute inset-0 opacity-[0.08] pointer-events-none"
         style={{
